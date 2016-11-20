@@ -668,19 +668,34 @@ class Statement
    /**
     * Returns how many records was found.
     *
-    * @param  string                        $table    The name of the table
-    * @param  \Messier\DBLib\SQL\Where|null $where    Optional WHERE clause
-    * @param  array                         $bindings Binding params for prepared statements of WHERE clause part
-    * @return int                                     Returns the count of found records.
+    * @param  string                               $table    The name of the table
+    * @param  \Messier\DBLib\SQL\Where|string|null $where    Optional WHERE clause
+    * @param  array                                $bindings Binding params for prepared statements of WHERE clause part
+    * @return int                                            Returns the count of found records.
     * @throws \Messier\DBLib\SQL\QueryError
     */
-   public final function count( string $table, ?Where $where = null, array $bindings = [] ) : int
+   public final function count( string $table, $where = null, array $bindings = [] ) : int
    {
 
       $sql = "SELECT COUNT(*) AS cnt FROM {$table}";
-      if ( null !== $where )
+
+      if ( null !== $where && '' !== \trim( $where ) )
       {
-         $sql .= $where->toSQL( $bindings, $this->_connection->getEngine() );
+         if ( $where instanceof Where )
+         {
+            $sql .= $where->toSQL( $bindings, $this->_connection->getEngine() );
+         }
+         else
+         {
+            if ( ! \preg_match( '~^\s*WHERE\s~i', $where ) )
+            {
+               $sql .= ' WHERE ' . $where;
+            }
+            else
+            {
+               $sql .= ' ' . $where;
+            }
+         }
       }
 
       return $this->fetchIntegerScalar( $sql, $bindings );
