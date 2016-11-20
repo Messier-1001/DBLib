@@ -5,7 +5,7 @@ My little database library
 {
   "require": {
     "php": ">=7.1",
-    "messier1001/dblib": "^0.1.0"
+    "messier1001/dblib": "^0.1.1"
   }
 }
 ```
